@@ -37,7 +37,7 @@ public class ManageBooksController {
                 new SimpleBooleanProperty(cellData.getValue().isBorrowed));
 
         
-        borrowedColumn.setCellFactory(col -> new TableCell<>() {
+        borrowedColumn.setCellFactory(col -> new TableCell<Book, Boolean>() {
             @Override
             protected void updateItem(Boolean borrowed, boolean empty) {
                 super.updateItem(borrowed, empty);
