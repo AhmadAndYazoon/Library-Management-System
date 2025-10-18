@@ -22,9 +22,15 @@
                 <Pane prefHeight="420.0" prefWidth="300.0" style="-fx-background-color: linear-gradient(to bottom right, #38C5B9, #4DB8E8);" BorderPane.alignment="CENTER">
                     <children>
                         
-                        <Circle fill="#ff5f56" layoutX="20.0" layoutY="20.0" onMouseClicked="#handleClose" radius="6.0" />
-                        <Circle fill="#ffbd2e" layoutX="40.0" layoutY="20.0" onMouseClicked="#handleMinimize" radius="6.0" />
-                        <Circle fill="#27c93f" layoutX="60.0" layoutY="20.0" onMouseClicked="#handleFullscreen" radius="6.0" />
+                        <Circle fill="#ff5f56" layoutX="20.0" layoutY="20.0" onMouseClicked="#handleClose" radius="6.0" >
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Circle>
+                        <Circle fill="#ffbd2e" layoutX="40.0" layoutY="20.0" onMouseClicked="#handleMinimize" radius="6.0" >
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Circle>
+                        <Circle fill="#27c93f" layoutX="60.0" layoutY="20.0" onMouseClicked="#handleFullscreen" radius="6.0" >
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Circle>
 
                         
                         <ImageView fitHeight="260.0" fitWidth="230.0" layoutX="35.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true" />

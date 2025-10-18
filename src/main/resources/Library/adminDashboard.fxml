@@ -35,7 +35,7 @@
                     <cursor><Cursor fx:constant="HAND" /></cursor>
                 </Button>
 
-                <Button onAction="#handleLogout" prefWidth="180" style="-fx-background-radius: 10; -fx-text-fill: white; -fx-background-color: transparent; -fx-font-weight: bold;" text="🚪 Logout">
+                <Button onAction="#SwitchToSignInForm" prefWidth="180" style="-fx-background-radius: 10; -fx-text-fill: white; -fx-background-color: transparent; -fx-font-weight: bold;" text="🚪 Logout">
                     <cursor><Cursor fx:constant="HAND" /></cursor>
                 </Button>
             </children>

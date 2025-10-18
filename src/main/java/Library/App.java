@@ -12,9 +12,10 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        
         Parent root = FXMLLoader.load(getClass().getResource("login.fxml")); 
         primaryStage.initStyle(StageStyle.UNDECORATED);
-
+        
         primaryStage.setTitle("Library System");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
