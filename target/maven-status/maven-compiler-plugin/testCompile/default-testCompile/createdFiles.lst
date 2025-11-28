@@ -1,0 +1,8 @@
+Library\FineStorageTest.class
+Library\FineTest.class
+Library\BorrowStorageTest.class
+Library\FileStorageTest.class
+Library\BorrowTest.class
+Library\BookTest.class
+Library\UserTest.class
+Library\UserStorageTest.class

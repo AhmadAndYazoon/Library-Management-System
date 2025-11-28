@@ -1,2 +1,2 @@
-admin,admin,admin,admin
-ahmed,user,123,user
+A,a@a.com,1,user
+B,b@b.com,2,user
