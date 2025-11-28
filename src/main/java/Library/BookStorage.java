@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileStorage {
+public class BookStorage {
     private static final String BOOKS_FILE = "books.txt";
 
     

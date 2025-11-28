@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx/24.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      alignment="CENTER" spacing="10"
+      style="-fx-padding: 20;">
+    <Text text="📊 Dashboard Overview" style="-fx-font-size: 22; -fx-fill: #38C5B9;" />
+    <Text text="Summary of books, users, and system stats." style="-fx-font-size: 14;" />
+</VBox>

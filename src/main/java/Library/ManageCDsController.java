@@ -9,26 +9,28 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.List;
 
-public class ManageBooksController {
+public class ManageCDsController {
 
-    @FXML private TableView<Book> bookTable;
-    @FXML private TableColumn<Book, String> titleColumn;
-    @FXML private TableColumn<Book, String> authorColumn;
-    @FXML private TableColumn<Book, String> isbnColumn;
-    @FXML private TableColumn<Book, Boolean> borrowedColumn;
+    @FXML private TableView<CD> cdTable;
+    @FXML private TableColumn<CD, String> titleColumn;
+    @FXML private TableColumn<CD, String> authorColumn;
+    @FXML private TableColumn<CD, String> isbnColumn;
+    @FXML private TableColumn<CD, Boolean> borrowedColumn;
 
     @FXML private TextField titleField;
     @FXML private TextField authorField;
     @FXML private TextField isbnField;
 
-    private static final ObservableList<Book> bookList = FXCollections.observableArrayList();
+    private static final ObservableList<CD> cdList = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        
-        List<Book> loaded = BookStorage.loadBooks();
-        bookList.setAll(loaded);
 
+       
+        List<CD> loaded = CDStorage.loadCDs();
+        cdList.setAll(loaded);
+
+        // Setup Table Columns
         titleColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
         authorColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
         isbnColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ISBN));
@@ -42,29 +44,29 @@ public class ManageBooksController {
             }
         });
 
-        bookTable.setItems(bookList);
+        cdTable.setItems(cdList);
     }
 
     @FXML
-    private void handleAddBook() {
+    private void handleAddCD() {
         String TITLE = titleField.getText().trim();
         String AUTHOR = authorField.getText().trim();
         String ISBN = isbnField.getText().trim();
 
         if (TITLE.isEmpty() || AUTHOR.isEmpty() || ISBN.isEmpty()) {
-            showAlert("Missing Fields", "Please fill in all fields before adding a book.");
+            showAlert("Missing Fields", "Please fill in all fields before adding a CD.");
             return;
         }
 
-        boolean exists = bookList.stream().anyMatch(b -> b.ISBN.equalsIgnoreCase(ISBN));
+        boolean exists = cdList.stream().anyMatch(cd -> cd.ISBN.equalsIgnoreCase(ISBN));
         if (exists) {
-            showAlert("Duplicate ISBN", "A book with this ISBN already exists.");
+            showAlert("Duplicate CD", "A CD with this Serial/ISBN already exists.");
             return;
         }
 
-        Book newBook = new Book(TITLE, AUTHOR, ISBN, false);
-        bookList.add(newBook);
-        BookStorage.saveBooks(bookList);
+        CD newCD = new CD(TITLE, AUTHOR, ISBN, false);
+        cdList.add(newCD);
+        CDStorage.saveCDs(cdList);
         clearFields();
     }
 
@@ -82,7 +84,7 @@ public class ManageBooksController {
         alert.showAndWait();
     }
 
-    public static ObservableList<Book> getBookList() {
-        return bookList;
+    public static ObservableList<CD> getCDList() {
+        return cdList;
     }
 }
