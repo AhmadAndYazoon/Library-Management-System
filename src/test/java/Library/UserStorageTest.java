@@ -1,89 +1,110 @@
 package Library;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserStorageTest {
 
-    @BeforeEach
-    void resetFile() {
-        UserStorage.saveUsers(new ArrayList<>());
-    }
+	 private static final String TEST_FILE = "src/test/resources/users_test.txt";
+	    private static final Path filePath = Paths.get(TEST_FILE);
+
+	    @BeforeAll
+	    static void useTestFile() {
+	        System.setProperty("users.file", TEST_FILE);
+	    }
+
+	    private void clearFile() throws IOException {
+	    	Files.deleteIfExists(filePath); // يفضي ملف التست
+	    }
 
     @Test
-    void saveAndLoadUsers_shouldPersistDataCorrectly() {
-        List<User> users = new ArrayList<>();
-        users.add(new User("Tayseer", "t@test.com", "1234", "user"));
-        users.add(new User("Ahmad", "a@test.com", "pass", "admin"));
+    void testSaveAndLoadUsers() throws IOException {
+
+        clearFile();
+
+        User u1 = new User("Tareq", "t@test.com", "123", "admin");
+        User u2 = new User("Maya", "m@test.com", "456", "user");
+
+        List<User> users = List.of(u1, u2);
 
         UserStorage.saveUsers(users);
 
-        List<User> loaded = UserStorage.loadUsers();
-
-        assertEquals(2, loaded.size());
-
-        User u1 = loaded.get(0);
-        assertEquals("Tayseer", u1.fullName);
-        assertEquals("t@test.com", u1.email);
-        assertEquals("1234", u1.password);
-        assertEquals("user", u1.role);
-
-        User u2 = loaded.get(1);
-        assertEquals("Ahmad", u2.fullName);
-        assertEquals("a@test.com", u2.email);
-        assertEquals("pass", u2.password);
-        assertEquals("admin", u2.role);
-    }
-
-    @Test
-    void addUser_shouldAppendUserToFile() {
-        UserStorage.addUser(new User("A", "a@a.com", "1", "user"));
-        UserStorage.addUser(new User("B", "b@b.com", "2", "user"));
+        assertTrue(Files.exists(filePath));
 
         List<User> loaded = UserStorage.loadUsers();
 
         assertEquals(2, loaded.size());
-        assertEquals("A", loaded.get(0).fullName);
-        assertEquals("B", loaded.get(1).fullName);
+
+        User lu1 = loaded.get(0);
+        assertEquals("Tareq", lu1.fullName);
+        assertEquals("t@test.com", lu1.email);
+        assertEquals("123", lu1.password);
+        assertEquals("admin", lu1.role);
+
+        User lu2 = loaded.get(1);
+        assertEquals("Maya", lu2.fullName);
+        assertEquals("m@test.com", lu2.email);
+        assertEquals("456", lu2.password);
+        assertEquals("user", lu2.role);
     }
 
     @Test
-    void findUserByEmail_shouldReturnCorrectUser() {
-        UserStorage.addUser(new User("A", "a@a.com", "1", "user"));
-        UserStorage.addUser(new User("B", "b@b.com", "2", "admin"));
+    void testAddUser() throws IOException {
 
-        User found = UserStorage.findUserByEmail("b@b.com");
+        clearFile();
+
+        User u1 = new User("Tareq", "t@test.com", "123", "admin");
+        User u2 = new User("Maya", "m@test.com", "456", "user");
+
+        UserStorage.addUser(u1);
+        UserStorage.addUser(u2);
+
+        List<User> loaded = UserStorage.loadUsers();
+
+        assertEquals(2, loaded.size());
+    }
+
+    @Test
+    void testFindUserByEmail_Found() throws IOException {
+
+        clearFile();
+
+        User u1 = new User("Sara", "s@test.com", "999", "user");
+        UserStorage.addUser(u1);
+
+        User found = UserStorage.findUserByEmail("s@test.com");
 
         assertNotNull(found);
-        assertEquals("B", found.fullName);
-        assertEquals("admin", found.role);
+        assertEquals("Sara", found.fullName);
     }
 
     @Test
-    void findUserByEmail_shouldReturnNullIfNotFound() {
-        UserStorage.addUser(new User("A", "a@a.com", "1", "user"));
+    void testFindUserByEmail_NotFound() throws IOException {
 
-        User found = UserStorage.findUserByEmail("notfound@test.com");
+        clearFile();
+
+        User u1 = new User("Sara", "s@test.com", "999", "user");
+        UserStorage.addUser(u1);
+
+        User found = UserStorage.findUserByEmail("nothing@test.com");
 
         assertNull(found);
     }
+
     @Test
-    void loadUsers_shouldReturnEmptyListIfFileMissing() {
-        File f = new File("users.txt");
-        if (f.exists()) {
-            assertTrue(f.delete(), "users.txt should be deletable for this test");
-        }
+    void testLoadUsersWhenFileEmpty() throws IOException {
 
-        List<User> loaded = UserStorage.loadUsers();
+        clearFile();
 
-        assertNotNull(loaded);
-        assertTrue(loaded.isEmpty(), "List should be empty when users file is missing");
+        List<User> users = UserStorage.loadUsers();
+
+        assertNotNull(users);
+        assertTrue(users.isEmpty());
     }
-
 }

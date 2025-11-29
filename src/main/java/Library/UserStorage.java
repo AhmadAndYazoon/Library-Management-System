@@ -1,3 +1,4 @@
+
 package Library;
 
 import java.io.*;
@@ -5,17 +6,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserStorage {
-    private static final String FILE_PATH = "users.txt";
+
+    // دايمًا نقرأ المسار من system properties
+    private static String getFilePath() {
+        return System.getProperty("users.file", "users.txt");
+    }
 
     public static List<User> loadUsers() {
-        
+
         List<User> users = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+        File file = new File(getFilePath());
+
+        if (!file.exists()) {
+            return users;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while((line = reader.readLine()) != null) {
-                
-                String parts[] = line.split(",");
-                User u = new User(parts[0],parts[1],parts[2],parts[3]);
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                User u = new User(parts[0], parts[1], parts[2], parts[3]);
                 users.add(u);
             }
         } catch (Exception e) {
@@ -26,10 +36,10 @@ public class UserStorage {
     }
 
     public static void saveUsers(List<User> users) {
-        try (FileWriter writer = new FileWriter(new File(FILE_PATH))) {
-            for(User u : users) {
+        try (FileWriter writer = new FileWriter(new File(getFilePath()))) {
+            for (User u : users) {
                 String line = u.fullName + "," + u.email + "," + u.password + "," + u.role;
-                writer.write(line +'\n');
+                writer.write(line + '\n');
             }
         } catch (IOException e) {
             e.printStackTrace();

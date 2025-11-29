@@ -16,353 +16,440 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
+/**
+ * JavaFX controller for all user-facing pages:
+ * dashboard, my books, search books, my CDs, search CDs, and fine payment.
+ *
+ * <p>Contains the logic for borrowing items, searching, calculating fines,
+ * and paying fines for the currently logged-in user.</p>
+ */
 public class UserController {
 
-    @FXML private StackPane mainContent;
     @FXML private Stage stage;
     @FXML private Scene scene;
     @FXML private Parent root;
+
+    @FXML private BorderPane page1;             // Dashboard
+    @FXML private BorderPane booksroot;         // My Books
+    @FXML private BorderPane page3;             // Search Books
+    @FXML private BorderPane pageCDs;           // My CDs
+    @FXML private BorderPane pageSearchCDs;     // Search CDs
+
     @FXML private Label borrowedCountLabel;
     @FXML private Label earliestDueLabel;
     @FXML private Label fineLabel;
-    @FXML private BorderPane page1;
-    @FXML private BorderPane page2;
-    @FXML private BorderPane page3;
-    
-    
+
     @FXML private TableView<Book> bookTable;
     @FXML private TableColumn<Book, String> titleColumn;
     @FXML private TableColumn<Book, String> authorColumn;
     @FXML private TableColumn<Book, String> isbnColumn;
     @FXML private TableColumn<Book, Boolean> borrowedColumn;
 
-    
     @FXML private TableView<Borrow> borrowTable;
     @FXML private TableColumn<Borrow, String> titleBColumn;
     @FXML private TableColumn<Borrow, String> authorBColumn;
     @FXML private TableColumn<Borrow, String> isbnBColumn;
     @FXML private TableColumn<Borrow, String> dueDateColumn;
-    
-    
-    
+    @FXML private TableColumn<Borrow, String> mediaTypeColumn;
+
+    @FXML private TableView<CD> cdTable;
+    @FXML private TableColumn<CD, String> cdTitleColumn2;
+    @FXML private TableColumn<CD, String> cdArtistColumn2;
+    @FXML private TableColumn<CD, String> cdSerialColumn2;
+    @FXML private TableColumn<CD, Boolean> cdBorrowedColumn2;
+
     @FXML private TextField searchField;
+    @FXML private TextField searchCDField;
+
     private static final ObservableList<Book> bookList = FXCollections.observableArrayList();
-    private static final ObservableList<Borrow> borrwedList = FXCollections.observableArrayList();
+    private static final ObservableList<Borrow> borrowedList = FXCollections.observableArrayList();
+    private static final ObservableList<CD> cdList = FXCollections.observableArrayList();
+
     @FXML String Username = MainController.username;
     @FXML String email = MainController.email;
-    
-    
+
     @FXML
-    private void initialize() {
-        if(page1 != null) {
-            List<Borrow> allBorrows = BorrowStorage.loadBorrowed();
-            
-            List<Borrow> userBorrows = allBorrows.stream()
-                    .filter(b -> b.email.equalsIgnoreCase(email))
-                    .toList();
+private void initialize() {
 
-            
-            borrowedCountLabel.setText(String.valueOf(userBorrows.size()));
+    
+    if (page1 != null) {
+        initDashboard();
+        return;
+    }
 
-            
-            userBorrows.stream()
-                    .min((b1, b2) -> b1.dueDate.compareTo(b2.dueDate))
-                    .ifPresentOrElse(earliest -> {
-                        
-                        String bookTitle = FileStorage.loadBooks().stream()
-                                .filter(book -> book.ISBN.equals(earliest.isbn))
-                                .map(book -> book.title)
-                                .findFirst()
-                                .orElse("Unknown Book");
+    
+    if (booksroot != null) {
+        initMyBooks();
+        return;
+    }
+
+    // Search Books
+    if (page3 != null) {
+        initSearchBooks();
+        return;
+    }
+
+    // My CDs
+    if (pageCDs != null) {
+        initMyCDs();
+        return;
+    }
+
+    // Search CDs
+    if (pageSearchCDs != null) {
+        initSearchCDs();
+    }
+}   
+
+private void initDashboard() {
+    List<Borrow> all = BorrowStorage.loadBorrowed();
+    List<Borrow> user = all.stream().filter(b -> b.email.equalsIgnoreCase(email)).toList();
+    borrowedCountLabel.setText(String.valueOf(user.size()));
+
+    user.stream().min((a, b) -> a.dueDate.compareTo(b.dueDate)).ifPresentOrElse(b -> {
+        String title = b.mediaType.equals("BOOK")
+                ? BookStorage.loadBooks().stream().filter(x -> x.ISBN.equals(b.isbn)).map(x -> x.title).findFirst().orElse("Unknown")
+                : CDStorage.loadCDs().stream().filter(x -> x.ISBN.equals(b.isbn)).map(x -> x.title).findFirst().orElse("Unknown");
+        earliestDueLabel.setText(title + " (Due: " + b.dueDate + ")");
+    }, () -> earliestDueLabel.setText("No borrowed items"));
+}
 
 
-                        earliestDueLabel.setText(bookTitle + " (Due: " + earliest.dueDate + ")");
-                    }, () -> {
-                        earliestDueLabel.setText("No borrowed books");
-                    });
-        } else if (page2 != null) {
-            
-            List<Borrow> loaded = BorrowStorage.loadBorrowed().stream()
-            .filter(b -> b.email.equalsIgnoreCase(email))
+private void initMyBooks() {
+
+    List<Borrow> loaded = BorrowStorage.loadBorrowed().stream()
+            .filter(b -> b.email.equalsIgnoreCase(email) && b.mediaType.equals("BOOK"))
             .toList();
-            
-            borrwedList.setAll(loaded);
-            
-            titleBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
-            authorBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
-            isbnBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().isbn));
-            dueDateColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().dueDate.toString()));
-            
-            
-            dueDateColumn.setCellFactory(col -> new TableCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        int rowIndex = getIndex();
-                        if (rowIndex >= 0 && rowIndex < getTableView().getItems().size()) {
-                            Borrow borrow = getTableView().getItems().get(rowIndex);
-                            setText(item);
 
-                            if (borrow.isOverDueBorrow()) {
-                                setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
-                            } else {
-                                setStyle("-fx-text-fill: black;");
-                            }
-                        } else {
-                            setText(null);
-                            setStyle("");
-                        }
-                    }
-                }
-                }); 
-            double fineAmount = calculateFineForUser(email);
-            FineStorage.updateFine(email, fineAmount);
-            fineLabel.setText("Fine: " + fineAmount + " NIS");
-            borrowTable.setItems(borrwedList);
-            
-        } else {
-            
-            refreshBooks();
-            
-            titleColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
-            authorColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
-            isbnColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ISBN));
-            borrowedColumn.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().isBorrowed));
+    borrowedList.setAll(loaded);
 
-            borrowedColumn.setCellFactory(col -> new TableCell<>() {
-                @Override
-                protected void updateItem(Boolean borrowed, boolean empty) {
-                    super.updateItem(borrowed, empty);
-                    setText(empty ? null : borrowed ? "Yes" : "No");
-                }
-            });
+    titleBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
+    authorBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
+    isbnBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().isbn));
+    mediaTypeColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().mediaType));
+    dueDateColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().dueDate.toString()));
 
-            
+    dueDateColumn.setCellFactory(col -> new TableCell<>() {
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) { setText(null); setStyle(""); return; }
+
+            Borrow b = getTableView().getItems().get(getIndex());
+            setText(item);
+
+            if (b.isOverDueBorrow())
+                setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+            else
+                setStyle("-fx-text-fill: black;");
+        }
+    });
+
+    double fineAmount = calculateFineForUser(email);
+    FineStorage.updateFine(email, fineAmount);
+    fineLabel.setText("Fine: " + fineAmount + " NIS");
+
+    borrowTable.setItems(borrowedList);
+}
+
+
+private void initSearchBooks() {
+    refreshBooks();
+    titleColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
+    authorColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
+    isbnColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ISBN));
+    borrowedColumn.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().isBorrowed));
+}
+
+@FXML private TableView<CD> cdBorrowTable;
+@FXML private TableColumn<CD, String> cdTitleColumn;
+@FXML private TableColumn<CD, String> cdArtistColumn;
+@FXML private TableColumn<CD, String> cdDueColumn;
+@FXML private TableColumn<CD, String> cdSerialColumn;
+
+
+
+
+private void initMyCDs() {
+
+    // 1. Load all borrows for this user that are CDs
+    List<Borrow> list = BorrowStorage.loadBorrowed().stream()
+            .filter(b -> b.email.equalsIgnoreCase(email) && b.mediaType.equals("CD"))
+            .toList();
+
+    // 2. Convert Borrow → CD objects
+    ObservableList<CD> cdBorrowed = FXCollections.observableArrayList();
+
+    for (Borrow b : list) {
+        CD cd = CDStorage.loadCDs().stream()
+                .filter(c -> c.ISBN.equals(b.isbn))
+                .findFirst()
+                .orElse(null);
+
+        if (cd != null) {
+            // sync due date from borrow record
+            cd.dueDate = b.dueDate;
+            cdBorrowed.add(cd);
         }
     }
-    
-    
-    private boolean hasBorrowRestrictions(String email) {
-        List<Borrow> userBorrows = BorrowStorage.loadBorrowed().stream()
-                .filter(b -> b.email.equalsIgnoreCase(email))
-                .toList();
+
+    // 3. Setup columns
+    cdTitleColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
+    cdArtistColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
+    cdSerialColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ISBN));
+    cdDueColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().dueDate.toString()));
+
+    // 4. Set the items
+    cdBorrowTable.setItems(cdBorrowed);
+}
 
 
-        boolean hasOverdue = userBorrows.stream().anyMatch(Borrow::isOverDueBorrow);
 
-        return hasOverdue;
-        }
-    
+
+private void initSearchCDs() {
+
+    cdList.setAll(CDStorage.loadCDs());
+    cdTable.setItems(cdList);
+
+    cdTitleColumn2.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title));
+    cdArtistColumn2.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().author));
+    cdSerialColumn2.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ISBN));
+    cdBorrowedColumn2.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().isBorrowed));
+}
+
+
     private double calculateFineForUser(String email) {
-        List<Borrow> userBorrows = BorrowStorage.loadBorrowed().stream()
-                .filter(b -> b.email.equalsIgnoreCase(email))
-                .toList();
+        List<Borrow> list = BorrowStorage.loadBorrowed().stream()
+                .filter(b -> b.email.equalsIgnoreCase(email)).toList();
 
-        double totalFine = 0;
-        for (Borrow b : userBorrows) {
+        double total = 0;
+
+        for (Borrow b : list) {
             if (b.isOverDueBorrow()) {
-                long overdueDays = java.time.temporal.ChronoUnit.DAYS.between(b.dueDate, java.time.LocalDate.now());
-                totalFine += overdueDays * 10;
+                int d = (int) java.time.temporal.ChronoUnit.DAYS.between(b.dueDate, LocalDate.now());
+                if (b.mediaType.equals("BOOK")) total += new BookFineStrategy().calculateFine(d);
+                else total += new CDFineStrategy().calculateFine(d);
             }
         }
-        return totalFine;
-    }   
-    
-    @FXML
-    private void handlePayFine() {
-        double totalFine = FineStorage.getFineAmount(email);
-        if (totalFine <= 0) {
-            MainController.showAlert("✅ No Fine", "You don't have any fines to pay.");
-            return;
-        }
-
-        
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Pay Fine");
-        dialog.setHeaderText("Total fine: " + totalFine + " NIS");
-        dialog.setContentText("Enter amount to pay:");
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isEmpty()) return;
-
-        double amountToPay;
-        try {
-            amountToPay = Double.parseDouble(result.get());
-            if (amountToPay <= 0) {
-                MainController.showAlert("❌ Invalid Amount", "Please enter a positive number.");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            MainController.showAlert("❌ Invalid Input", "Please enter a valid number.");
-            return;
-        }
-
-        
-        double remainingFine = totalFine - amountToPay;
-        if (remainingFine < 0) remainingFine = 0;
-
-        
-        FineStorage.updateFine(email, remainingFine);
-
-        
-        if (remainingFine == 0) {
-            List<Borrow> borrows = BorrowStorage.loadBorrowed();
-            for (Borrow b : borrows) {
-                if (b.email.equalsIgnoreCase(email) && b.isOverDueBorrow()) {
-                    b.dueDate = LocalDate.now().plusDays(28);
-                }
-            }
-            BorrowStorage.saveBorrowed(borrows);
-            borrwedList.setAll(
-                BorrowStorage.loadBorrowed().stream()
-                    .filter(b -> b.email.equalsIgnoreCase(email))
-                    .toList()
-            );
-            borrowTable.refresh();
-            MainController.showAlert("✅ Fine Paid", "Your fine has been fully paid. You can borrow again.");
-        } else {
-            MainController.showAlert("✅ Partial Payment",
-                "You paid " + amountToPay + " NIS.\nRemaining fine: " + remainingFine + " NIS.");
-        }
-
-        
-        fineLabel.setText("Fine: " + remainingFine + " NIS");
+        return total;
     }
-    
+
     @FXML
-    private void handleSearch() {
-        String query = searchField.getText().toLowerCase();
-        ObservableList<Book> filtered = bookList.filtered(b ->
-            b.title.toLowerCase().contains(query) ||
-            b.author.toLowerCase().contains(query) ||
-            b.ISBN.toLowerCase().contains(query)
+    private void handleSearchCD() {
+        String q = searchCDField.getText().toLowerCase();
+
+        ObservableList<CD> all = FXCollections.observableArrayList(CDStorage.loadCDs());
+
+        ObservableList<CD> filtered = all.filtered(cd ->
+                cd.title.toLowerCase().contains(q) ||
+                cd.author.toLowerCase().contains(q) ||
+                cd.ISBN.toLowerCase().contains(q)
         );
-        bookTable.setItems(filtered);
+
+        cdTable.setItems(filtered);
     }
-    
+
     @FXML
-    private void handleBorrow() {
+    private void handleBorrowCD() {
+
         double fine = FineStorage.getFineAmount(email);
-        boolean hasOverdue = BorrowStorage.loadBorrowed().stream()
+        boolean overdue = BorrowStorage.loadBorrowed().stream()
                 .filter(b -> b.email.equalsIgnoreCase(email))
                 .anyMatch(Borrow::isOverDueBorrow);
 
-        if (fine > 0 || hasOverdue) {
-            MainController.showAlert("Borrow Restricted 🚫", 
-                "You cannot borrow new books because you have overdue books or unpaid fines.");
+        if (fine > 0 || overdue) {
+            MainController.showAlert("Restricted", "You cannot borrow because you have overdue items or unpaid fines.");
             return;
         }
-        Book book = bookTable.getSelectionModel().getSelectedItem();
-        if(book == null) {
-            MainController.showAlert("⚠ No Selection", "Please select a Book to Borrow.");
+
+        CD cd = cdTable.getSelectionModel().getSelectedItem();
+        if (cd == null) {
+            MainController.showAlert("No Selection", "Select a CD first.");
             return;
         }
-        
-        if(  book.isBorrowed == true ) {
-            MainController.showAlert("Book is Already Borrowed", "Sorry That Book Has Been Borrowed Already .");
+
+        if (cd.isBorrowed) {
+            MainController.showAlert("Already Borrowed", "This CD is already borrowed.");
             return;
         }
-        
-        book.borrowBook();
-        
-        List<Book> allBooks = FileStorage.loadBooks();
-        for (Book b : allBooks) {
-            if ( b.ISBN.equals(book.ISBN)) {
-                b.isBorrowed = true;
-                b.dueDate = book.dueDate;
-                break;
+
+        cd.borrowBook();
+
+        List<CD> cds = CDStorage.loadCDs();
+        for (CD c : cds) {
+            if (c.ISBN.equals(cd.ISBN)) {
+                c.isBorrowed = true;
+                c.dueDate = cd.dueDate;
             }
         }
-        FileStorage.saveBooks(allBooks);
-        
-        BorrowStorage.addBorrow(new Borrow(book.title,book.author,book.ISBN,Username , email, book.dueDate));
-        bookList.setAll(FileStorage.loadBooks());
-        bookTable.refresh();
-        MainController.showAlert("✅ Success", "Book borrowed successfully until " + book.dueDate + ".");
+        CDStorage.saveCDs(cds);
 
-        
+        BorrowStorage.addBorrow(new Borrow(
+                cd.title, cd.author, cd.ISBN,
+                Username, email, cd.dueDate, "CD"
+        ));
+
+        cdList.setAll(CDStorage.loadCDs());
+        cdTable.refresh();
+
+        MainController.showAlert("Success", "CD Borrowed until " + cd.dueDate);
     }
-    
+
+    @FXML
+    private void handleSearch() {
+        String q = searchField.getText().toLowerCase();
+        ObservableList<Book> f = bookList.filtered(b ->
+                b.title.toLowerCase().contains(q) ||
+                b.author.toLowerCase().contains(q) ||
+                b.ISBN.toLowerCase().contains(q)
+        );
+        bookTable.setItems(f);
+    }
+
+    @FXML
+    private void handleBorrow() {
+
+        double fine = FineStorage.getFineAmount(email);
+        boolean overdue = BorrowStorage.loadBorrowed().stream()
+                .filter(b -> b.email.equalsIgnoreCase(email))
+                .anyMatch(Borrow::isOverDueBorrow);
+
+        if (fine > 0 || overdue) {
+            MainController.showAlert("Restricted", "You have overdue items or unpaid fines.");
+            return;
+        }
+
+        Book book = bookTable.getSelectionModel().getSelectedItem();
+        if (book == null) {
+            MainController.showAlert("No Selection", "Select a book first.");
+            return;
+        }
+
+        if (book.isBorrowed) {
+            MainController.showAlert("Borrowed", "This book is already borrowed.");
+            return;
+        }
+
+        book.borrowBook();
+
+        List<Book> all = BookStorage.loadBooks();
+        for (Book b : all) {
+            if (b.ISBN.equals(book.ISBN)) {
+                b.isBorrowed = true;
+                b.dueDate = book.dueDate;
+            }
+        }
+        BookStorage.saveBooks(all);
+
+        BorrowStorage.addBorrow(new Borrow(
+                book.title, book.author, book.ISBN,
+                Username, email, book.dueDate, "BOOK"
+        ));
+
+        refreshBooks();
+        MainController.showAlert("Success", "Borrowed until " + book.dueDate);
+    }
+
     private void refreshBooks() {
-        List<Book> loaded = FileStorage.loadBooks();
-        bookList.setAll(loaded);
+        bookList.setAll(BookStorage.loadBooks());
+        bookTable.setItems(bookList);
     }
 
-    @FXML
-    private void SwitchToPage1(ActionEvent ev) {
-        String str = "userDashBoard.fxml";
-        switchTo(str, ev);
-    }
-    @FXML
-    private void SwitchToPage2(ActionEvent ev) {
-        String str = "UserBooks.fxml";
-        switchTo(str, ev);
-    }
-    @FXML
-    private void SwitchToPage3(ActionEvent ev) {
-        String str = "UserSearchbook.fxml";
-        switchTo(str, ev);
-    }
-
-    @FXML
-    private void handleLogout(ActionEvent e) {
-        switchTo("login.fxml", e);
-    }
-
-    private void loadCenterContent(String fxmlFile) {
-        try {
-            Parent newContent = FXMLLoader.load(getClass().getResource(fxmlFile));
-            mainContent.getChildren().clear();
-            mainContent.getChildren().add(newContent);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void switchTo(String path, ActionEvent ev) {
-        try {
-            root = FXMLLoader.load(getClass().getResource(path));
-            stage = (Stage) ((Node) ev.getSource()).getScene().getWindow();
-            scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
+    @FXML private void SwitchToPage1(ActionEvent e) { switchTo("userDashBoard.fxml", e); }
+    @FXML private void SwitchToPage2(ActionEvent e) {
     
-        @FXML
-    private void handleClose(MouseEvent event) {
-        stage = (Stage) ((Circle) event.getSource()).getScene().getWindow();
+    switchTo("UserBooks.fxml", e);
+}
+
+    @FXML private void SwitchToPage3(ActionEvent e) { switchTo("UserSearchbook.fxml", e); }
+    @FXML private void SwitchToCDs(ActionEvent e) { switchTo("UserCDs.fxml", e); }
+    @FXML private void SwitchToSearchCDs(ActionEvent e) { switchTo("UserSearchCD.fxml", e); }
+    @FXML private void handleLogout(ActionEvent e) { switchTo("login.fxml", e); }
+
+    private void switchTo(String fxml, ActionEvent e) {
+        try {
+            root = FXMLLoader.load(getClass().getResource(fxml));
+            stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException ignored) {
+            ignored.printStackTrace(); 
+        }
+    }
+
+    
+    
+    
+    @FXML
+private void handlePayFine() {
+
+    double totalFine = FineStorage.getFineAmount(email);
+    if (totalFine <= 0) {
+        MainController.showAlert("No Fine", "You don't have any fines.");
+        return;
+    }
+
+    TextInputDialog dialog = new TextInputDialog();
+    dialog.setTitle("Pay Fine");
+    dialog.setHeaderText("Total fine: " + totalFine + " NIS");
+    dialog.setContentText("Enter amount to pay:");
+
+    Optional<String> result = dialog.showAndWait();
+    if (result.isEmpty()) return;
+
+    double amount;
+    try {
+        amount = Double.parseDouble(result.get());
+        if (amount <= 0) return;
+    } catch (Exception e) {
+        return;
+    }
+
+    double remaining = totalFine - amount;
+    if (remaining < 0) remaining = 0;
+
+    FineStorage.updateFine(email, remaining);
+
+    if (remaining == 0) {
+
+        List<Borrow> all = BorrowStorage.loadBorrowed();
+        for (Borrow b : all) {
+            if (b.email.equalsIgnoreCase(email) && b.isOverDueBorrow())
+                b.dueDate = LocalDate.now().plusDays(28);
+        }
+
+        BorrowStorage.saveBorrowed(all);
+
+        if (borrowTable != null)
+            borrowTable.refresh();
+
+        if (cdBorrowTable != null)
+            cdBorrowTable.refresh();
+    }
+
+    if (fineLabel != null)
+        fineLabel.setText("Fine: " + remaining + " NIS");
+}
+
+    
+    
+    
+    @FXML private void handleClose(MouseEvent e) {
+        stage = (Stage) ((Circle) e.getSource()).getScene().getWindow();
         stage.close();
     }
 
-    @FXML
-    private void handleMinimize(MouseEvent event) {
-        stage = (Stage) ((Circle) event.getSource()).getScene().getWindow();
+    @FXML private void handleMinimize(MouseEvent e) {
+        stage = (Stage) ((Circle) e.getSource()).getScene().getWindow();
         stage.setIconified(true);
     }
 
-    @FXML
-    private void handleFullscreen(MouseEvent event) {
-        stage = (Stage) ((Circle) event.getSource()).getScene().getWindow();
+    @FXML private void handleFullscreen(MouseEvent e) {
+        stage = (Stage) ((Circle) e.getSource()).getScene().getWindow();
         stage.setFullScreen(!stage.isFullScreen());
     }
-    
-    
 }

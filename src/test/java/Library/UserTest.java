@@ -6,12 +6,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserTest {
 
     @Test
-    void constructor_shouldStoreValuesCorrectly() {
-        User user = new User("Tayseer", "t@test.com", "1234", "admin");
+    void testUserConstructorAndFields() {
 
-        assertEquals("Tayseer", user.fullName);
+        User user = new User("Tareq", "t@test.com", "12345", "admin");
+
+        assertEquals("Tareq", user.fullName);
         assertEquals("t@test.com", user.email);
-        assertEquals("1234", user.password);
+        assertEquals("12345", user.password);
         assertEquals("admin", user.role);
     }
 }

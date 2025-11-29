@@ -1,56 +1,45 @@
 package Library;
 
+import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class BookTest {
+public class BookTest {
 
     @Test
-    void defaultConstructor_shouldInitializeBorrowedFalse() {
-        Book book = new Book();
-
-        assertFalse(book.isBorrowed, "Book should not be borrowed by default");
-        assertNull(book.dueDate, "Default due date should be null");
+    void testDefaultConstructor() {
+        Book b = new Book();
+        assertFalse(b.isBorrowed);
+        assertNull(b.dueDate);
     }
 
     @Test
-    void parameterizedConstructor_shouldStoreValuesCorrectly() {
-        Book book = new Book("Clean Code", "Robert Martin", "12345", false);
-
-        assertEquals("Clean Code", book.title);
-        assertEquals("Robert Martin", book.author);
-        assertEquals("12345", book.ISBN);
-        assertFalse(book.isBorrowed);
-        assertNull(book.dueDate);
+    void testParameterizedConstructor() {
+        Book b = new Book("Title", "Author", "123", false);
+        assertEquals("Title", b.title);
+        assertEquals("Author", b.author);
+        assertEquals("123", b.ISBN);
+        assertFalse(b.isBorrowed);
+        assertNull(b.dueDate);
     }
 
     @Test
-    void borrowBook_shouldSetBorrowedTrueAndAssignDueDate() {
-        Book book = new Book("Java", "Tayseer", "9999", false);
+    void testBorrowBook() {
+        Book b = new Book();
+        b.borrowBook();
 
-        book.borrowBook();
-
-        assertTrue(book.isBorrowed, "Book should be marked as borrowed");
-        assertNotNull(book.dueDate, "Due date should be assigned after borrowing");
-
-
-        assertEquals(LocalDate.now().plusDays(28), book.dueDate);
+        assertTrue(b.isBorrowed);
+        assertNotNull(b.dueDate);
+        assertEquals(LocalDate.now().plusDays(28), b.dueDate);
     }
 
     @Test
-    void returnBook_shouldSetBorrowedFalseAndClearDueDate() {
-        Book book = new Book("Anything", "Someone", "0000", true);
+    void testReturnBook() {
+        Book b = new Book();
+        b.borrowBook();
+        b.returnBook();
 
-    
-        book.borrowBook();
-
-
-        book.returnBook();
-
-        assertFalse(book.isBorrowed, "Book should be marked as not borrowed");
-        assertNull(book.dueDate, "Due date should be cleared after returning");
+        assertFalse(b.isBorrowed);
+        assertNull(b.dueDate);
     }
 }

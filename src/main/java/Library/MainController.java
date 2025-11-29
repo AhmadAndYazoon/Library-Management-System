@@ -1,3 +1,5 @@
+
+
 package Library;
 
 import javafx.scene.input.MouseEvent;
@@ -19,7 +21,13 @@ import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
+/**
+ * JavaFX controller for the admin views (dashboard, manage books, manage users, manage CDs)
+ * and for the login/sign-up logic.
+ *
+ * <p>Provides actions for logging in, registering users, navigating between admin pages,
+ * removing users, and sending reminder emails.</p>
+ */
 public class MainController {
     @FXML private StackPane mainContent;
     @FXML private Stage stage;
@@ -64,24 +72,24 @@ public class MainController {
 
         User selected = userTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("⚠ No Selection", "Please select a user to remove.");
+            showAlert("No Selection", "Please select a user to remove.");
             return;
         }
         if (selected.role.equalsIgnoreCase("admin")) {
-            showAlert("🚫 Restricted", "Admin accounts cannot be removed.");
+            showAlert("Restricted", "Admin accounts cannot be removed.");
             return;
         }
         
         double fineAmount = FineStorage.getFineAmount(selected.email);
         if (fineAmount > 0) {
-            showAlert("🚫 Cannot Remove", "User has unpaid fines. Please clear them first.");
+            showAlert("Cannot Remove", "User has unpaid fines. Please clear them first.");
             return;
         }
         List<Borrow> borrows = BorrowStorage.loadBorrowed();
         boolean hasActiveLoans = borrows.stream()
                 .anyMatch(b -> b.email.equalsIgnoreCase(selected.email));
         if (hasActiveLoans) {
-            showAlert("🚫 Cannot Remove", "User has active borrowed books. Please return them first.");
+            showAlert("Cannot Remove", "User has active borrowed books. Please return them first.");
             return;
         }
         
@@ -94,7 +102,7 @@ public class MainController {
 
         
         handleRefreshUsers();
-        showAlert("✅ User Removed", selected.fullName + " has been removed.");
+        showAlert("User Removed", selected.fullName + " has been removed.");
     }
 
 
@@ -107,16 +115,16 @@ public class MainController {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            showAlert("⚠ Missing Fields", "Please fill in all fields before signing up.");
+            showAlert("Missing Fields", "Please fill in all fields before signing up.");
             return;
         }
         if (UserStorage.findUserByEmail(email) != null) {
-            showAlert("⚠ Duplicate Email", "This email is already registered.");
+            showAlert("Duplicate Email", "This email is already registered.");
             return;
         }
         User newUser = new User(fullName, email, password, "user");
         UserStorage.addUser(newUser);
-        showAlert("✅ Success", "Account created successfully! You can now log in.");
+        showAlert("Success", "Account created successfully! You can now log in.");
         SwitchToSignInForm(e);
     }
 
@@ -125,7 +133,7 @@ public class MainController {
         String email1 = emailField.getText().trim();
         String password = passwordField.getText().trim();
         if (email1.isEmpty() || password.isEmpty()) {
-            showAlert("⚠ Missing Fields", "Please fill in all fields before logging in.");
+            showAlert("Missing Fields", "Please fill in all fields before logging in.");
             return;
         }
         List<User> users = UserStorage.loadUsers();
@@ -143,7 +151,7 @@ public class MainController {
                 return;
             }
         }
-        showAlert("❌ Invalid Login", "Email or password is incorrect.");
+        showAlert("Invalid Login", "Email or password is incorrect.");
     }
     
     
@@ -160,6 +168,12 @@ public class MainController {
     private void handleManageUsers() {
         handleRefreshUsers();
         loadCenterContent("manageUsers.fxml"); 
+        
+    }
+    
+    @FXML 
+    private void handleManageCds() {
+        loadCenterContent("manageCDs.fxml"); 
         
     }
 
@@ -202,6 +216,21 @@ public class MainController {
             e.printStackTrace();
         }
     }
+    
+    
+    @FXML
+    private void handleSendReminders() {
+        ReminderService service = new ReminderService();
+
+        
+        service.addObserver(new EmailNotifier());
+
+        service.sendOverdueReminders();
+
+        showAlert("Success", "Reminder emails sent successfully!");
+    }
+
+    
 
     @FXML
     private void handleClose(MouseEvent event) {

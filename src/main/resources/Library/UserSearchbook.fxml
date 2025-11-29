@@ -29,6 +29,16 @@
             <Button onAction="#SwitchToPage1" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;" text="Dashboard" />
             <Button onAction="#SwitchToPage2" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;" text="My Books" />
             <Button prefWidth="180" style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8;" text="Search Books" />
+            <Button onAction="#SwitchToCDs" 
+        prefWidth="180" 
+        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;" 
+        text="My CDs" />
+
+<Button onAction="#SwitchToSearchCDs" 
+        prefWidth="180" 
+        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;" 
+        text="Search CDs" />
+
 
             <Region VBox.vgrow="ALWAYS" />
             <Button onAction="#handleLogout" prefWidth="160" style="-fx-background-color: rgba(255,255,255,0.25); -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;" text="🔒 Logout" />

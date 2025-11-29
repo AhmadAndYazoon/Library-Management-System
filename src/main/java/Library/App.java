@@ -7,7 +7,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle; 
 
-
+/**
+ * JavaFX application entry point for the Library System.
+ *
+ * <p>Starts the JavaFX platform and loads the initial login view.</p>
+ */
 public class App extends Application {
 
     @Override

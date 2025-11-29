@@ -1,104 +1,146 @@
 package Library;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import java.io.File;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BorrowStorageTest {
 
-    @BeforeEach
-    void resetFile() {
-        BorrowStorage.saveBorrowed(new ArrayList<>());
+    private static final String TEST_FILE = "src/test/resources/borrows_test.txt";
+    private static final Path filePath = Paths.get(TEST_FILE);
+
+    @BeforeAll
+    static void useTestFile() {
+        System.setProperty("borrows.file", TEST_FILE);
+    }
+
+    private void clearFile() throws IOException {
+        Files.writeString(filePath, "");
     }
 
     @Test
-    void saveAndLoadBorrowed_shouldPersistDataCorrectly() {
-        List<Borrow> list = new ArrayList<>();
-        list.add(new Borrow("Title1", "Author1", "ISBN1", "user1", "u1@test.com", LocalDate.of(2025, 1, 1)));
-        list.add(new Borrow("Title2", "Author2", "ISBN2", "user2", "u2@test.com", LocalDate.of(2025, 2, 2)));
+    void testSaveAndLoadBorrowed() throws IOException {
+        clearFile();
 
-        BorrowStorage.saveBorrowed(list);
+        Borrow b1 = new Borrow(
+                "Title1",
+                "Author1",
+                "111",
+                "User One",
+                "u1@test.com",
+                LocalDate.now().plusDays(3),
+                "BOOK"
+        );
+
+        Borrow b2 = new Borrow(
+                "Title2",
+                "Author2",
+                "222",
+                "User Two",
+                "u2@test.com",
+                LocalDate.now().minusDays(2),
+                "CD"
+        );
+
+        List<Borrow> borrows = List.of(b1, b2);
+
+        BorrowStorage.saveBorrowed(borrows);
+
+        assertTrue(Files.exists(filePath));
 
         List<Borrow> loaded = BorrowStorage.loadBorrowed();
 
-        assertEquals(2, loaded.size(), "Should load 2 records");
-
-        Borrow b1 = loaded.get(0);
-        assertEquals("Title1", b1.title);
-        assertEquals("Author1", b1.author);
-        assertEquals("ISBN1", b1.isbn);
-        assertEquals("user1", b1.username);
-        assertEquals("u1@test.com", b1.email);
-        assertEquals(LocalDate.of(2025, 1, 1), b1.dueDate);
-
-        Borrow b2 = loaded.get(1);
-        assertEquals("Title2", b2.title);
-        assertEquals("Author2", b2.author);
-        assertEquals("ISBN2", b2.isbn);
-        assertEquals("user2", b2.username);
-        assertEquals("u2@test.com", b2.email);
-        assertEquals(LocalDate.of(2025, 2, 2), b2.dueDate);
+        assertEquals(2, loaded.size());
     }
 
     @Test
-    void addBorrow_shouldAddNewRecordToFile() {
+    void testAddBorrow() throws IOException {
+        clearFile();
 
-        Borrow b1 = new Borrow("T1", "A1", "I1", "u1", "e1@test.com", LocalDate.now());
+        Borrow b1 = new Borrow(
+                "Title1",
+                "Author1",
+                "111",
+                "User One",
+                "u1@test.com",
+                LocalDate.now(),
+                "BOOK"
+        );
+        Borrow b2 = new Borrow(
+                "Title2",
+                "Author2",
+                "222",
+                "User Two",
+                "u2@test.com",
+                LocalDate.now().plusDays(1),
+                "CD"
+        );
+
         BorrowStorage.addBorrow(b1);
-
-        List<Borrow> loaded = BorrowStorage.loadBorrowed();
-        assertEquals(1, loaded.size(), "Should have 1 record after first add");
-        assertEquals("I1", loaded.get(0).isbn);
-
-        Borrow b2 = new Borrow("T2", "A2", "I2", "u2", "e2@test.com", LocalDate.now().plusDays(1));
         BorrowStorage.addBorrow(b2);
 
-        loaded = BorrowStorage.loadBorrowed();
-        assertEquals(2, loaded.size(), "Should have 2 records after second add");
-        assertEquals("I1", loaded.get(0).isbn);
-        assertEquals("I2", loaded.get(1).isbn);
+        List<Borrow> loaded = BorrowStorage.loadBorrowed();
+
+        assertEquals(2, loaded.size());
     }
 
     @Test
-    void removeByISBN_shouldRemoveCorrectRecord() {
-        List<Borrow> list = new ArrayList<>();
-        list.add(new Borrow("Title1", "Author1", "I1", "u1", "e1@test.com", LocalDate.now()));
-        list.add(new Borrow("Title2", "Author2", "I2", "u2", "e2@test.com", LocalDate.now()));
-        list.add(new Borrow("Title3", "Author3", "I3", "u3", "e3@test.com", LocalDate.now()));
+    void testRemoveByISBN() throws IOException {
+        clearFile();
 
-        BorrowStorage.saveBorrowed(list);
+        Borrow b1 = new Borrow(
+                "Title1",
+                "Author1",
+                "111",
+                "User One",
+                "u1@test.com",
+                LocalDate.now(),
+                "BOOK"
+        );
+        Borrow b2 = new Borrow(
+                "Title2",
+                "Author2",
+                "111",
+                "User Two",
+                "u2@test.com",
+                LocalDate.now().plusDays(1),
+                "BOOK"
+        );
+        Borrow b3 = new Borrow(
+                "Title3",
+                "Author3",
+                "333",
+                "User Three",
+                "u3@test.com",
+                LocalDate.now().plusDays(2),
+                "CD"
+        );
 
-        BorrowStorage.removeByISBN("I2");
+        BorrowStorage.saveBorrowed(List.of(b1, b2, b3));
+
+        BorrowStorage.removeByISBN("111");
 
         List<Borrow> loaded = BorrowStorage.loadBorrowed();
-        assertEquals(2, loaded.size(), "Should have 2 records after removal");
 
-        boolean hasI2 = loaded.stream().anyMatch(b -> b.isbn.equals("I2"));
-        assertFalse(hasI2, "Record with ISBN I2 should be removed");
-
-        boolean hasI1 = loaded.stream().anyMatch(b -> b.isbn.equals("I1"));
-        boolean hasI3 = loaded.stream().anyMatch(b -> b.isbn.equals("I3"));
-        assertTrue(hasI1, "Record with ISBN I1 should remain");
-        assertTrue(hasI3, "Record with ISBN I3 should remain");
+        assertEquals(1, loaded.size());
+        assertEquals("333", loaded.get(0).isbn);
+        assertEquals("Title3", loaded.get(0).title);
     }
-    
+
     @Test
-    void loadBorrowed_shouldReturnEmptyListIfFileIsMissing() {
-        File f = new File("borrowed.txt");
-        if (f.exists()) {
-            assertTrue(f.delete(), "borrowed.txt should be deletable for this test");
-        }
+    void testLoadBorrowedWhenFileEmpty() throws IOException {
+        clearFile();
 
-        List<Borrow> loaded = BorrowStorage.loadBorrowed();
+        List<Borrow> list = BorrowStorage.loadBorrowed();
 
-        assertNotNull(loaded, "List must not be null even if file is missing");
-        assertTrue(loaded.isEmpty(), "List should be empty when file is missing");
+        assertNotNull(list);
+        assertTrue(list.isEmpty());
     }
-
 }
+

@@ -1,47 +1,81 @@
 package Library;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
+
+/**
+ * Utility class for persisting and loading {@link Borrow} records
+ * from a simple text file (borrows.txt).
+ */
 public class BorrowStorage {
-    private static final String BOOKS_FILE = "borrowed.txt";
 
-    
-    public static void saveBorrowed(List<Borrow> books) {
-        try (FileWriter writer = new FileWriter(new File(BOOKS_FILE))) {
-            for(Borrow b:books) {
-                String line = b.title+","+b.author+","+b.isbn+","+b.username+","+b.email+","+b.dueDate;
-                writer.write(line + '\n');
+    /** Path of the borrows data file. */
+	private static final String FILE =
+	        System.getProperty("borrows.file", "borrows.txt");
+    /**
+     * Saves all given borrow records into the storage file, overwriting any existing data.
+     *
+     * @param borrows list of borrows to save
+     */
+    public static void saveBorrowed(List<Borrow> borrows) {
+        try (FileWriter w = new FileWriter(FILE)) {
+            for (Borrow b : borrows) {
+                w.write(b.title + "," +
+                        b.author + "," +
+                        b.isbn + "," +
+                        b.username + "," +
+                        b.email + "," +
+                        b.dueDate + "," +
+                        b.mediaType + "\n");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
         }
     }
 
-    
-    @SuppressWarnings("unchecked")
+    /**
+     * Loads all borrow records from the storage file.
+     *
+     * @return list of borrows; empty list if file cannot be read
+     */
     public static List<Borrow> loadBorrowed() {
-        List<Borrow> borrows = new ArrayList<>();
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(BOOKS_FILE))) {
+        List<Borrow> list = new ArrayList<>();
+        try (BufferedReader r = new BufferedReader(new FileReader(FILE))) {
             String line;
-            while((line = reader.readLine()) != null) {
-                String parts[] = line.split(",");
-                borrows.add(new Borrow(parts[0],parts[1],parts[2],parts[3],parts[4],LocalDate.parse(parts[5])));
+            while ((line = r.readLine()) != null) {
+                String[] p = line.split(",");
+                list.add(new Borrow(
+                        p[0],
+                        p[1],
+                        p[2],
+                        p[3],
+                        p[4],
+                        LocalDate.parse(p[5]),
+                        p[6]
+                ));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+        } catch (Exception e) {
         }
-        return borrows;
+        return list;
     }
-    public static void addBorrow(Borrow record) {
+
+    /**
+     * Appends a new borrow record to the existing list and saves it.
+     *
+     * @param b borrow to add
+     */
+    public static void addBorrow(Borrow b) {
         List<Borrow> all = loadBorrowed();
-        all.add(record);
+        all.add(b);
         saveBorrowed(all);
     }
 
+    /**
+     * Removes all borrow records that match the given ISBN.
+     *
+     * @param isbn identifier of the item to remove borrows for
+     */
     public static void removeByISBN(String isbn) {
         List<Borrow> all = loadBorrowed();
         all.removeIf(b -> b.isbn.equals(isbn));
