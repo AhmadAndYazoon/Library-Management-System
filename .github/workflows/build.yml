@@ -3,10 +3,12 @@ name: Build and Analyze
 on:
   push:
     branches:
-      - main        
+      - main   
+      - Ahmad
   pull_request:
     branches:
-      - main         
+      - main  
+      - Ahmad
 
 jobs:
   build:
