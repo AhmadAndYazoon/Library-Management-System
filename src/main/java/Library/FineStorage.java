@@ -4,9 +4,21 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class for persisting and querying {@link Fine} records
+ * from a simple text file (fines.txt).
+ */
 public class FineStorage {
-    private static final String FINE_FILE = "fines.txt";
 
+    /** Path of the fines data file. */
+	private static final String FINE_FILE =
+	        System.getProperty("fines.file", "fines.txt");
+
+    /**
+     * Loads all fines from the storage file.
+     *
+     * @return list of fines; empty list if file does not exist
+     */
     public static List<Fine> loadFines() {
         List<Fine> fines = new ArrayList<>();
         File file = new File(FINE_FILE);
@@ -24,6 +36,11 @@ public class FineStorage {
         return fines;
     }
 
+    /**
+     * Saves all given fines into the storage file, overwriting any existing data.
+     *
+     * @param fines list of fines to save
+     */
     public static void saveFines(List<Fine> fines) {
         try (FileWriter writer = new FileWriter(FINE_FILE)) {
             for (Fine f : fines) {
@@ -34,6 +51,12 @@ public class FineStorage {
         }
     }
 
+    /**
+     * Returns the current fine amount for a user with the given email.
+     *
+     * @param email user email
+     * @return fine amount; 0 if the user has no fine record
+     */
     public static double getFineAmount(String email) {
         return loadFines().stream()
                 .filter(f -> f.email.equalsIgnoreCase(email))
@@ -42,6 +65,14 @@ public class FineStorage {
                 .orElse(0.0);
     }
 
+    /**
+     * Updates the fine amount for the given email.
+     * If the user does not have a fine yet and {@code newAmount > 0},
+     * a new record is created.
+     *
+     * @param email     user email
+     * @param newAmount new fine amount
+     */
     public static void updateFine(String email, double newAmount) {
         List<Fine> fines = loadFines();
         boolean found = false;

@@ -4,11 +4,28 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
 
+/**
+ * Observer implementation that sends reminder messages via email
+ * using the JavaMail API and a Gmail SMTP server.
+ *
+ * <p>In this academic project, credentials are hard-coded and should
+ * be replaced with environment variables or a secure configuration
+ * in real applications.</p>
+ */
 public class EmailNotifier implements Observer {
 
-    private final String fromEmail = "YOUR_GMAIL@gmail.com"; 
+    /** Sender Gmail address used for all notifications. */
+    private final String fromEmail = "YOUR_GMAIL@gmail.com";
+
+    /** App password or SMTP password for the sender Gmail account. */
     private final String password = "YOUR_APP_PASSWORD";
 
+    /**
+     * Sends an email reminder message to the given user.
+     *
+     * @param user    target user
+     * @param message reminder message text
+     */
     @Override
     public void notify(User user, String message) {
         try {
@@ -19,6 +36,7 @@ public class EmailNotifier implements Observer {
             props.put("mail.smtp.starttls.enable", "true");
 
             Session session = Session.getInstance(props, new Authenticator() {
+                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(fromEmail, password);
                 }

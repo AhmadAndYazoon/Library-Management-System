@@ -8,7 +8,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.List;
-
+/**
+ * JavaFX controller used by the admin to manage books.
+ *
+ * <p>Supports listing existing books, adding new books, and validating input fields.</p>
+ */
 public class ManageBooksController {
 
     @FXML private TableView<Book> bookTable;

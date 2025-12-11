@@ -1,2 +1,7 @@
 asad,1qweq,123,ahmed,user,2025-12-27,CD
 1,1,1233,ahmed,user,2025-12-26,BOOK
+Book1,Author1,12345,Tayseer,t@test.com,2025-01-01,PDF
+B2,A2,222,T2,e2,2025-11-29,EPUB
+Title1,Author1,111,user,123@,2025-12-27,BOOK
+software,haya,4548,yazan,s12340151@stu.najah.edu,2025-12-27,BOOK
+digital,yazan,15469,yazan,s12340151@stu.najah.edu,2025-12-27,BOOK

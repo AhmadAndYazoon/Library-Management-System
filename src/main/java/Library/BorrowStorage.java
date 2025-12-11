@@ -5,9 +5,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class for persisting and loading {@link Borrow} records
+ * from a simple text file (borrows.txt).
+ */
 public class BorrowStorage {
-    private static final String FILE = "borrows.txt";
 
+    /** Path of the borrows data file. */
+	private static final String FILE =
+	        System.getProperty("borrows.file", "borrows.txt");
+    /**
+     * Saves all given borrow records into the storage file, overwriting any existing data.
+     *
+     * @param borrows list of borrows to save
+     */
     public static void saveBorrowed(List<Borrow> borrows) {
         try (FileWriter w = new FileWriter(FILE)) {
             for (Borrow b : borrows) {
@@ -19,15 +30,15 @@ public class BorrowStorage {
                         b.dueDate + "," +
                         b.mediaType + "\n");
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
-    public static void addBorrow(Borrow b) {
-        List<Borrow> all = loadBorrowed();
-        all.add(b);
-        saveBorrowed(all);
-    }
-
+    /**
+     * Loads all borrow records from the storage file.
+     *
+     * @return list of borrows; empty list if file cannot be read
+     */
     public static List<Borrow> loadBorrowed() {
         List<Borrow> list = new ArrayList<>();
         try (BufferedReader r = new BufferedReader(new FileReader(FILE))) {
@@ -44,11 +55,27 @@ public class BorrowStorage {
                         p[6]
                 ));
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return list;
     }
 
+    /**
+     * Appends a new borrow record to the existing list and saves it.
+     *
+     * @param b borrow to add
+     */
+    public static void addBorrow(Borrow b) {
+        List<Borrow> all = loadBorrowed();
+        all.add(b);
+        saveBorrowed(all);
+    }
 
+    /**
+     * Removes all borrow records that match the given ISBN.
+     *
+     * @param isbn identifier of the item to remove borrows for
+     */
     public static void removeByISBN(String isbn) {
         List<Borrow> all = loadBorrowed();
         all.removeIf(b -> b.isbn.equals(isbn));

@@ -8,7 +8,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.List;
-
+/**
+ * JavaFX controller used by the admin to manage CDs.
+ *
+ * <p>Supports listing existing CDs, adding new CDs, and validating input fields.</p>
+ */
 public class ManageCDsController {
 
     @FXML private TableView<CD> cdTable;

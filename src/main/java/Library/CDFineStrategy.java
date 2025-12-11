@@ -1,16 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Library;
 
 /**
- *
- * @author rahhal
+ * Fine calculation strategy for CDs.
+ * Each overdue day costs 20 NIS.
  */
 public class CDFineStrategy implements FineStrategy {
+
+    /**
+     * {@inheritDoc}
+     * For CDs: fine = 20 * overdueDays.
+     */
     @Override
     public int calculateFine(int overdueDays) {
-        return 20*overdueDays;
+        return 20 * overdueDays;
     }
 }

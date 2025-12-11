@@ -1,12 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Library;
 
-public class BookFineStrategy implements FineStrategy{
+/**
+ * Fine calculation strategy for books.
+ * Each overdue day costs 10 NIS.
+ */
+public class BookFineStrategy implements FineStrategy {
+
+    /**
+     * {@inheritDoc}
+     * For books: fine = 10 * overdueDays.
+     */
     @Override
     public int calculateFine(int overdueDays) {
-        return 10*overdueDays;
+        return 10 * overdueDays;
     }
 }

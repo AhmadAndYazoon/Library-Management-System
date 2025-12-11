@@ -4,10 +4,20 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class for persisting and loading {@link CD} objects
+ * from a simple text file (cds.txt).
+ */
 public class CDStorage {
 
-    private static final String CD_FILE = "cds.txt";
-
+    /** Path of the CDs data file. */
+	private static final String CD_FILE =
+	        System.getProperty("cds.file", "cds.txt");
+    /**
+     * Saves all given CDs into the storage file, overwriting any existing data.
+     *
+     * @param cds list of CDs to save
+     */
     public static void saveCDs(List<CD> cds) {
         try (FileWriter writer = new FileWriter(new File(CD_FILE))) {
             for (CD cd : cds) {
@@ -20,6 +30,11 @@ public class CDStorage {
         }
     }
 
+    /**
+     * Loads all CDs from the storage file.
+     *
+     * @return list of CDs; empty list if file cannot be read
+     */
     public static List<CD> loadCDs() {
         List<CD> cds = new ArrayList<>();
 

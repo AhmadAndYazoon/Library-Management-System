@@ -1,3 +1,5 @@
+
+
 package Library;
 
 import javafx.scene.input.MouseEvent;
@@ -19,7 +21,13 @@ import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
+/**
+ * JavaFX controller for the admin views (dashboard, manage books, manage users, manage CDs)
+ * and for the login/sign-up logic.
+ *
+ * <p>Provides actions for logging in, registering users, navigating between admin pages,
+ * removing users, and sending reminder emails.</p>
+ */
 public class MainController {
     @FXML private StackPane mainContent;
     @FXML private Stage stage;

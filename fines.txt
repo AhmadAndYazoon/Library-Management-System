@@ -1,1 +1,1 @@
-user,0.0
+user@test.com,80.0

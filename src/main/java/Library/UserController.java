@@ -20,7 +20,13 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Circle;
-
+/**
+ * JavaFX controller for all user-facing pages:
+ * dashboard, my books, search books, my CDs, search CDs, and fine payment.
+ *
+ * <p>Contains the logic for borrowing items, searching, calculating fines,
+ * and paying fines for the currently logged-in user.</p>
+ */
 public class UserController {
 
     @FXML private Stage stage;
