@@ -5,10 +5,12 @@ on:
     branches:
       - main   
       - Ahmad
+      - sawalha
   pull_request:
     branches:
       - main  
       - Ahmad
+      - sawalha
 
 jobs:
   build:
