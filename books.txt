@@ -2,3 +2,5 @@ Title1,Author1,111,yes
 Title2,Author2,222,yes
 digital,yazan,15469,yes
 software,haya,4548,yes
+digit,haya,4548,yes
+AI,haya,4548,yes

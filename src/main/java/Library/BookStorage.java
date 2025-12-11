@@ -9,6 +9,9 @@ import java.util.List;
  * from a simple text file (books.txt).
  */
 public class BookStorage {
+	private BookStorage() {
+	    throw new UnsupportedOperationException("Utility class");
+	}
 
     /** Path of the books data file. */
 	private static final String BOOKS_FILE =
