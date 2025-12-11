@@ -14,6 +14,12 @@ class BorrowStorageTest {
 
     private static final String TEST_FILE = "src/test/resources/borrows_test.txt";
     private static final Path filePath = Paths.get(TEST_FILE);
+    private static final String TITLE1 = "Title1";
+    private static final String AUTHOR1 = "Author1";
+   
+    private static final String UTEST = "u2@test.com";
+    private static final String USERTWO = "User Two";
+    private static final String USERONE = "User One";
 
     @BeforeAll
     static void useTestFile() {
@@ -29,21 +35,21 @@ class BorrowStorageTest {
         clearFile();
 
         Borrow b1 = new Borrow(
-                "Title1",
-                "Author1",
+        		TITLE1,
+        		AUTHOR1,
                 "111",
-                "User One",
+                USERONE,
                 "u1@test.com",
                 LocalDate.now().plusDays(3),
                 "BOOK"
         );
 
         Borrow b2 = new Borrow(
-                "Title2",
+        		TITLE1,
                 "Author2",
                 "222",
-                "User Two",
-                "u2@test.com",
+                USERTWO,
+                UTEST,
                 LocalDate.now().minusDays(2),
                 "CD"
         );
@@ -64,20 +70,20 @@ class BorrowStorageTest {
         clearFile();
 
         Borrow b1 = new Borrow(
-                "Title1",
-                "Author1",
+        		TITLE1,
+        		AUTHOR1,
                 "111",
-                "User One",
+                USERONE,
                 "u1@test.com",
                 LocalDate.now(),
                 "BOOK"
         );
         Borrow b2 = new Borrow(
-                "Title2",
+        		TITLE1,
                 "Author2",
                 "222",
-                "User Two",
-                "u2@test.com",
+                USERTWO,
+                UTEST,
                 LocalDate.now().plusDays(1),
                 "CD"
         );
@@ -95,10 +101,10 @@ class BorrowStorageTest {
         clearFile();
 
         Borrow b1 = new Borrow(
-                "Title1",
-                "Author1",
+        		TITLE1,
+        		AUTHOR1,
                 "111",
-                "User One",
+                USERONE,
                 "u1@test.com",
                 LocalDate.now(),
                 "BOOK"
@@ -107,8 +113,8 @@ class BorrowStorageTest {
                 "Title2",
                 "Author2",
                 "111",
-                "User Two",
-                "u2@test.com",
+                USERTWO,
+                UTEST,
                 LocalDate.now().plusDays(1),
                 "BOOK"
         );
