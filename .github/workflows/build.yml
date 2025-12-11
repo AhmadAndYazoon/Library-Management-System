@@ -3,15 +3,14 @@ name: Build and Analyze
 on:
   push:
     branches:
-      - main
+      - main   
       - Ahmad
       - sawalha
   pull_request:
     branches:
-      - main
+      - main  
       - Ahmad
       - sawalha
-
 
 jobs:
   build:
@@ -42,11 +41,12 @@ jobs:
         run: mvn -B verify --file pom.xml
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
           args: >
-            -Dsonar.projectKey=your-org-name_repo-name
-            -Dsonar.organization=your-org-name
+            -Dsonar.projectKey=AhmadAndYazoon_Library-Management-System
+            -Dsonar.organization=ahmadandyazoon
+            -Dsonar.java.binaries=target/classes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
