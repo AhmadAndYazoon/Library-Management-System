@@ -96,9 +96,18 @@
 
                 <configuration>
                     <excludes>
-                        <exclude>**/App.class</exclude>
-
+                        <exclude>**/App.class</exclude> 
+                        <exclude>Library/EmailNotifier.class</exclude>
+                        <exclude>Library/EmailNotifier*.class</exclude>
+                        <exclude>Library/ManageBooksController.class</exclude>
+                        <exclude>Library/ManageBooksController*.class</exclude>
+                        <exclude>Library/MainController.class</exclude>
+                        <exclude>Library/MainController*.class</exclude>
+                        <exclude>Library/ManageCDsController.class</exclude>
+                        <exclude>Library/ManageCDsController*.class</exclude>
                         <exclude>**/*Controller.class</exclude>
+                        <exclude>Library/UserController.class</exclude>
+                        <exclude>Library/UserController*.class</exclude>
                     </excludes>
                 </configuration>
 

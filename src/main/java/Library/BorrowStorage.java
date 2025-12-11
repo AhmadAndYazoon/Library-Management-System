@@ -31,7 +31,7 @@ public class BorrowStorage {
                         b.mediaType + "\n");
             }
         } catch (Exception e) {
-        }
+        	 throw new RuntimeException("Failed to save borrowed data", e);        }
     }
 
     /**
@@ -56,6 +56,7 @@ public class BorrowStorage {
                 ));
             }
         } catch (Exception e) {
+        	 throw new RuntimeException("Failed to save borrowed data", e);
         }
         return list;
     }
